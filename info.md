@@ -13,15 +13,16 @@ _Component to integrate with [integration_blueprint][integration_blueprint]._
 
 **This component will set up the following platforms.**
 
-Platform | Description
--- | --
-`binary_sensor` | Show something `True` or `False`.
-`sensor` | Show info from API.
-`switch` | Switch something `True` or `False`.
+| Platform        | Description                         |
+| --------------- | ----------------------------------- |
+| `binary_sensor` | Show something `True` or `False`.   |
+| `sensor`        | Show info from API.                 |
+| `switch`        | Switch something `True` or `False`. |
 
 ![example][exampleimg]
 
 {% if not installed %}
+
 ## Installation
 
 1. Click install.
@@ -29,12 +30,11 @@ Platform | Description
 
 {% endif %}
 
-
 ## Configuration is done in the UI
 
 <!---->
 
-***
+---
 
 [integration_blueprint]: https://github.com/openmotics/home-assistant
 [commits-shield]: https://img.shields.io/github/commit-activity/y/custom-components/integration_blueprint.svg?style=for-the-badge

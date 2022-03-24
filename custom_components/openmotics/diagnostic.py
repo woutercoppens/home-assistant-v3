@@ -15,7 +15,7 @@ async def async_get_config_entry_diagnostics(
     coordinator: OpenMoticsDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     diagnostics_data = {
-        "info": dict(config_entry.data),
+        "info": dict(entry.data),
         "data": coordinator.data,
     }
 

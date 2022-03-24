@@ -5,8 +5,6 @@ import logging
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
-
-# from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -15,11 +13,6 @@ from .coordinator import OpenMoticsDataUpdateCoordinator
 from .entity import OpenMoticsDevice
 
 _LOGGER = logging.getLogger(__name__)
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Component doesn't support configuration through configuration.yaml."""
-    return
 
 
 async def async_setup_entry(

@@ -2,25 +2,24 @@
 from __future__ import annotations
 
 import logging
+import ssl
 from typing import Any
 
-from async_timeout import timeout
-from homeassistant.components import cloud, webhook
-from homeassistant.components.webhook import async_register as webhook_register
-from homeassistant.components.webhook import async_unregister as webhook_unregister
+# from async_timeout import timeout
+# from homeassistant.components import cloud, webhook
+# from homeassistant.components.webhook import async_register as webhook_register
+# from homeassistant.components.webhook import async_unregister as webhook_unregister
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
+from homeassistant.const import (  # CONF_VERIFY_SSL,; CONF_WEBHOOK_ID,; EVENT_HOMEASSISTANT_STOP,
     CONF_IP_ADDRESS,
+    CONF_NAME,
     CONF_PASSWORD,
     CONF_PORT,
-    CONF_VERIFY_SSL,
-    CONF_WEBHOOK_ID,
-    EVENT_HOMEASSISTANT_STOP,
 )
-from homeassistant.core import Event, HomeAssistant
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhaopenmotics import (
     LocalGateway,
     OpenMoticsCloud,
@@ -30,7 +29,6 @@ from pyhaopenmotics import (
 )
 
 from .const import CONF_INSTALLATION_ID, DEFAULT_SCAN_INTERVAL, DOMAIN
-from .exceptions import CannotConnect, InvalidAuth
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,7 +56,8 @@ class OpenMoticsDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> dict:
         """Fetch data from API endpoint.
 
-        This is the place to pre-process the data to lookup tables so entities can quickly look up their data.
+        This is the place to pre-process the data to lookup tables
+        so entities can quickly look up their data.
         """
 
         try:
@@ -137,7 +136,7 @@ class OpenMoticsLocalDataUpdateCoordinator(OpenMoticsDataUpdateCoordinator):
         """Set up a OpenMotics controller"""
         self._omclient = LocalGateway(
             localgw=entry.data.get(CONF_IP_ADDRESS),
-            username=entry.data.get(CONF_USERNAME),
+            username=entry.data.get(CONF_NAME),
             password=entry.data.get(CONF_PASSWORD),
             port=entry.data.get(CONF_PORT),
             ssl_context=ssl_context,

@@ -7,17 +7,13 @@ import ssl
 import time
 from typing import Any
 
-import async_timeout
 import voluptuous as vol
-from aiohttp import ClientError
 from homeassistant import config_entries
 from homeassistant.components import zeroconf
 from homeassistant.const import (
-    ATTR_CREDENTIALS,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_IP_ADDRESS,
-    CONF_MAC,
     CONF_NAME,
     CONF_PASSWORD,
     CONF_PORT,
@@ -38,7 +34,7 @@ from pyhaopenmotics import (
 )
 
 from .const import CONF_INSTALLATION_ID, DOMAIN, ENV_CLOUD, ENV_LOCAL
-from .exceptions import CannotConnect, InvalidAuth
+from .exceptions import CannotConnect
 from .oauth_impl import OpenMoticsOauth2Implementation
 
 DEFAULT_PORT = 443
@@ -120,7 +116,8 @@ class OpenMoticsFlowHandler(
                 errors={},
             )
 
-        # Environment chosen, request additional host information for LOCAL or OAuth2 flow for CLOUD
+        # Environment chosen, request additional host information for LOCAL
+        # or OAuth2 flow for CLOUD
         # Ask for host detail
         if user_input["environment"] == ENV_LOCAL:
             return await self.async_step_local()
@@ -224,12 +221,14 @@ class OpenMoticsFlowHandler(
 
     async def async_step_create_cloudentry(self, data=None) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
-        unique_id = self.construct_unique_id("Cloud", self.data[CONF_INSTALLATION_ID])
+        unique_id = self.construct_unique_id(
+            "openmotics-cloud", self.data[CONF_INSTALLATION_ID]
+        )
         await self.async_set_unique_id(unique_id)
 
         self.data[
             "auth_implementation"
-        ] = f"{self.flow_impl.domain}-{self.data[CONF_INSTALLATION_ID]}"
+        ] = f"{DOMAIN}-cloud-{self.data[CONF_INSTALLATION_ID]}"
         self.data["token"] = self.token
 
         return self.async_create_entry(title=unique_id, data=self.data)
@@ -294,7 +293,9 @@ class OpenMoticsFlowHandler(
 
     async def async_step_create_localentry(self, data=None) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
-        unique_id = self.construct_unique_id("Local", self.data[CONF_IP_ADDRESS])
+        unique_id = self.construct_unique_id(
+            "openmotics-local", self.data[CONF_IP_ADDRESS]
+        )
         await self.async_set_unique_id(unique_id)
 
         return self.async_create_entry(title=unique_id, data=self.data)

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from homeassistant.components.scene import Scene
 from homeassistant.config_entries import ConfigEntry
@@ -14,11 +14,6 @@ from .coordinator import OpenMoticsDataUpdateCoordinator
 from .entity import OpenMoticsDevice
 
 _LOGGER = logging.getLogger(__name__)
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Component doesn't support configuration through configuration.yaml."""
-    return
 
 
 async def async_setup_entry(
@@ -34,7 +29,6 @@ async def async_setup_entry(
     for index, om_scene in enumerate(coordinator.data["groupactions"]):
         if om_scene.name is None or om_scene.name == "" or om_scene.name == NOT_IN_USE:
             continue
-        # print("- {}".format(om_scene))
         entities.append(OpenMoticsScene(coordinator, index, om_scene))
 
     if not entities:

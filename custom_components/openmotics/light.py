@@ -2,18 +2,14 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
-from homeassistant.components.light import (  # SUPPORT_BRIGHTNESS, # Deprecated, replaced by color modes
+from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_MODE,
-    ATTR_COLOR_TEMP,
-    ATTR_HS_COLOR,
-    ATTR_TRANSITION,
     COLOR_MODE_BRIGHTNESS,
     COLOR_MODE_COLOR_TEMP,
     COLOR_MODE_HS,
-    COLOR_MODE_ONOFF,
-    SUPPORT_TRANSITION,
+    COLOR_MODE_RGBW,
     LightEntity,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -24,15 +20,7 @@ from .const import DOMAIN, NOT_IN_USE
 from .coordinator import OpenMoticsDataUpdateCoordinator
 from .entity import OpenMoticsDevice
 
-# from typing import ValuesView
-
-
 _LOGGER = logging.getLogger(__name__)
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Component doesn't support configuration through configuration.yaml."""
-    return
 
 
 async def async_setup_entry(
@@ -85,8 +73,6 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
         """Initialize the light."""
         super().__init__(coordinator, index, device, "light")
 
-        # self._device = self.coordinator.data["outputs"][self.index]
-
         self._attr_supported_color_modes = set()
 
         if "RANGE" in device.capabilities:
@@ -120,25 +106,15 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
                 self.device_id,
                 kwargs[ATTR_BRIGHTNESS],
             )
-            response = await self.coordinator.omclient.outputs.turn_on(
+            await self.coordinator.omclient.outputs.turn_on(
                 self.device_id,
                 brightness_to_percentage(kwargs[ATTR_BRIGHTNESS]),  # value
             )
         else:
             _LOGGER.debug("Turning on light: %s", self.device_id)
-            response = await self.coordinator.omclient.outputs.turn_on(
+            await self.coordinator.omclient.outputs.turn_on(
                 self.device_id,
             )
-
-        # Turns on a specified Output object.
-        # The call can optionally receive a JSON object that states the value
-        # in case the Output is dimmable.
-        # if response:
-        #     try:
-        #         _LOGGER.debug("Light turned on: %s response OM %s", self.device_id, response["value"])
-        #         self.device.status.value = brightness_from_percentage(response["value"])
-        #     except KeyError:
-        #         self.device.status.value = None
 
         await self.coordinator.async_refresh()
 
@@ -149,12 +125,6 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
             self.device_id,
         )
         await self.coordinator.async_refresh()
-
-    # async def _async_update_callback(self) -> None:
-    #     """Update the entity."""
-    #     self._device = self.coordinator.data["outputs"][self.index]
-
-    #     await self.async_update_ha_state(True)
 
 
 class OpenMoticsLight(OpenMoticsDevice, LightEntity):
@@ -207,25 +177,15 @@ class OpenMoticsLight(OpenMoticsDevice, LightEntity):
                 self.device_id,
                 kwargs[ATTR_BRIGHTNESS],
             )
-            response = await self.coordinator.omclient.lights.turn_on(
+            await self.coordinator.omclient.lights.turn_on(
                 self.device_id,
                 brightness_to_percentage(kwargs[ATTR_BRIGHTNESS]),  # value
             )
         else:
             _LOGGER.debug("Turning on light: %s", self.device_id)
-            response = await self.coordinator.omclient.lights.turn_on(
+            await self.coordinator.omclient.lights.turn_on(
                 self.device_id,
             )
-
-        # Turns on a specified Light object.
-        # The call can optionally receive a JSON object that states the value
-        # in case the Light is dimmable.
-        # if response:
-        #     try:
-        #         _LOGGER.debug("Light turned on: %s response OM %s", self.device_id, response["value"])
-        #         self.device.status.value = brightness_from_percentage(response["value"])
-        #     except KeyError:
-        #         self.device.status.value = None
 
         await self.coordinator.async_refresh()
 

@@ -2,19 +2,10 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-from enum import Enum
 
-from homeassistant.components.sensor import (
-    STATE_CLASS_MEASUREMENT,
-    SensorDeviceClass,
-    SensorEntity,
-    SensorEntityDescription,
-    SensorStateClass,
-)
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    ATTR_TEMPERATURE,
     DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
@@ -32,11 +23,6 @@ _LOGGER = logging.getLogger(__name__)
 
 ATTR_HUMIDITY = "humidity"
 ATTR_ILLUMINANCE = "illuminance"
-
-
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Component doesn't support configuration through configuration.yaml."""
-    return
 
 
 async def async_setup_entry(

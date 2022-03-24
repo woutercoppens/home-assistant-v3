@@ -2,15 +2,14 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
-from homeassistant.components.cover import (
-    ATTR_CURRENT_POSITION,
+from homeassistant.components.cover import (  # ATTR_CURRENT_POSITION,; CoverDeviceClass,
     ATTR_POSITION,
     SUPPORT_CLOSE,
     SUPPORT_OPEN,
     SUPPORT_SET_POSITION,
     SUPPORT_STOP,
-    CoverDeviceClass,
     CoverEntity,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -33,11 +32,6 @@ VALUE_TO_STATE = {
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Component doesn't support configuration through configuration.yaml."""
-    return
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -51,7 +45,6 @@ async def async_setup_entry(
     for index, om_cover in enumerate(coordinator.data["shutters"]):
         if om_cover.name is None or om_cover.name == "" or om_cover.name == NOT_IN_USE:
             continue
-        # print("- {}".format(om_cover))
         entities.append(OpenMoticsShutter(coordinator, index, om_cover))
 
     if not entities:
@@ -122,14 +115,14 @@ class OpenMoticsShutter(OpenMoticsDevice, CoverEntity):
 
     async def async_open_cover(self, **kwargs):
         """Open the window cover."""
-        await self.coordinator.omclient.shutters.up(
+        await self.coordinator.omclient.shutters.move_up(
             self.device_id,
         )
         await self.coordinator.async_refresh()
 
     async def async_close_cover(self, **kwargs):
         """Open the window cover."""
-        await self.coordinator.omclient.shutters.down(
+        await self.coordinator.omclient.shutters.move_down(
             self.device_id,
         )
         await self.coordinator.async_refresh()

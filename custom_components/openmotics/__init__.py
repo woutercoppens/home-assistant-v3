@@ -25,14 +25,14 @@ from pyhaopenmotics.const import (
     CLOUD_BASE_URL,
 )
 
-# from . import config_flow
 from .const import CONF_INSTALLATION_ID, DOMAIN, PLATFORMS
 from .coordinator import (
     OpenMoticsCloudDataUpdateCoordinator,
     OpenMoticsLocalDataUpdateCoordinator,
 )
-from .exceptions import CannotConnect
 from .oauth_impl import OpenMoticsOauth2Implementation
+
+CONF_AUTH_IMPLEMENTATION = "auth_implementation"
 
 base_url = f"{CLOUD_BASE_URL}/{CLOUD_API_VERSION}"
 token_url = f"{base_url}{CLOUD_API_TOKEN_URL}"
@@ -45,9 +45,6 @@ async def async_setup_openmotics_installation(
     hass: core.HomeAssistant, entry: config_entries.ConfigEntry, openmotics_installation
 ):
     """Set up the OpenMotics Installation."""
-    # entry_id = entry.entry_id
-    # hass.data[DOMAIN].setdefault(entry_id, {})
-
     device_registry = await dr.async_get_registry(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
@@ -69,6 +66,7 @@ async def async_setup_entry(
         hass.data[DOMAIN] = {}
 
     if CONF_IP_ADDRESS in entry.data:
+        # Local gateway
         coordinator = OpenMoticsLocalDataUpdateCoordinator(
             hass,
             entry=entry,
@@ -76,14 +74,12 @@ async def async_setup_entry(
 
     else:
         # Cloud
-
-        # implementation = await async_get_config_entry_implementation(hass, entry)
         implementation = OpenMoticsOauth2Implementation(
             hass,
-            domain=f"{DOMAIN}-{entry.data.get(CONF_INSTALLATION_ID)}",
+            domain=entry.data.get(CONF_AUTH_IMPLEMENTATION),
             client_id=entry.data.get(CONF_CLIENT_ID),
             client_secret=entry.data.get(CONF_CLIENT_SECRET),
-            name=f"{DOMAIN}-{entry.data.get(CONF_INSTALLATION_ID)}",
+            name=entry.data.get(CONF_AUTH_IMPLEMENTATION),
         )
         oauth2_session = OAuth2Session(hass, entry, implementation)
 

@@ -17,11 +17,10 @@ NOT_IN_USE = "NOT_IN_USE"
 ENV_CLOUD = "cloud"
 ENV_LOCAL = "local"
 
-"""
-The state of a light is refreshed every 30 seconds (more or less).
-Setting the interval between updates to 30 seconds was just a little bit
-to late. 28 seconds is better.
-"""
+
+# The state of a light is refreshed every 30 seconds (more or less).
+# Setting the interval between updates to 30 seconds was just a little bit
+# to late. 28 seconds is better.
 DEFAULT_SCAN_INTERVAL = timedelta(seconds=30)
 
 PLATFORMS = [

@@ -14,10 +14,7 @@
   ],
   "homekit": {},
   "dependencies": [],
-  "codeowners": [
-    "@openmotics",
-    "@woutercoppens"
-  ],
+  "codeowners": ["@openmotics", "@woutercoppens"],
   "iot_class": "cloud_polling",
   "quality_scale": "silver",
   "version": "0.0.1"

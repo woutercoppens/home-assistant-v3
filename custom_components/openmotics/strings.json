@@ -25,7 +25,7 @@
           "verify_ssl": ""
         }
       },
-        "installation": {
+      "installation": {
         "title": "Select the installation",
         "description": "Please select the OpenMotics installation you wish to add to Home Assistant.",
         "data": {
