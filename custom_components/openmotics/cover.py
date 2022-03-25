@@ -13,7 +13,14 @@ from homeassistant.components.cover import (  # ATTR_CURRENT_POSITION,; CoverDev
     CoverEntity,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_CLOSED, STATE_CLOSING, STATE_OPEN, STATE_OPENING
+from homeassistant.const import (
+    STATE_CLOSED,
+    STATE_CLOSING,
+    STATE_OPEN,
+    STATE_OPENING,
+    STATE_PAUSED,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -26,7 +33,8 @@ VALUE_TO_STATE = {
     "GOING_DOWN": STATE_CLOSING,
     "UP": STATE_OPEN,
     "GOING_UP": STATE_OPENING,
-    "STOP": None,
+    "STOP": STATE_PAUSED,
+    None: STATE_UNKNOWN,
 }
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,7 +57,7 @@ async def async_setup_entry(
 
     if not entities:
         _LOGGER.info("No OpenMotics shutters added")
-        return False
+        return
 
     async_add_entities(entities)
 
@@ -83,7 +91,7 @@ class OpenMoticsShutter(OpenMoticsDevice, CoverEntity):
             self._state = self._device.status.state
             return VALUE_TO_STATE.get(self._state) == STATE_OPENING
         except (AttributeError, KeyError):
-            return None
+            return STATE_UNKNOWN
 
     @property
     def is_closing(self):
@@ -93,7 +101,7 @@ class OpenMoticsShutter(OpenMoticsDevice, CoverEntity):
             self._state = self._device.status.state
             return VALUE_TO_STATE.get(self._state) == STATE_CLOSING
         except (AttributeError, KeyError):
-            return None
+            return STATE_UNKNOWN
 
     @property
     def is_closed(self):
@@ -111,7 +119,7 @@ class OpenMoticsShutter(OpenMoticsDevice, CoverEntity):
             self._device = self.coordinator.data["shutters"][self.index]
             return 100 - self._device.status.position
         except (AttributeError, KeyError):
-            return None
+            return STATE_UNKNOWN
 
     async def async_open_cover(self, **kwargs):
         """Open the window cover."""

@@ -9,7 +9,6 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components import zeroconf
 from homeassistant.const import (
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -24,14 +23,7 @@ from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
-from pyhaopenmotics import (
-    Installation,
-    LocalGateway,
-    OpenMoticsCloud,
-    OpenMoticsConnectionError,
-    OpenMoticsConnectionTimeoutError,
-    OpenMoticsError,
-)
+from pyhaopenmotics import Installation, LocalGateway, OpenMoticsCloud, OpenMoticsError
 
 from .const import CONF_INSTALLATION_ID, DOMAIN, ENV_CLOUD, ENV_LOCAL
 from .exceptions import CannotConnect
@@ -59,10 +51,9 @@ LOCAL_SCHEMA = vol.Schema(
 _LOGGER = logging.getLogger(__name__)
 
 
-# @config_entries.HANDLERS.register(DOMAIN)
+@config_entries.HANDLERS.register(DOMAIN)
 class OpenMoticsFlowHandler(
     config_entry_oauth2_flow.AbstractOAuth2FlowHandler,
-    domain=DOMAIN,
 ):
     """Handle a config flow for OpenMotics."""
 
@@ -70,7 +61,7 @@ class OpenMoticsFlowHandler(
     DOMAIN = DOMAIN
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
-    installations: list[Installation] | None = None
+    installations: list[Installation] = []
     data: dict[str, Any] = {}
 
     def __init__(self) -> None:
@@ -82,7 +73,7 @@ class OpenMoticsFlowHandler(
         """Return logger."""
         return logging.getLogger(__name__)
 
-    def is_local_device_already_added(self):
+    def is_local_device_already_added(self) -> bool:
         """Check if a Local device has already been added."""
         for entry in self._async_current_entries():
             if entry.unique_id is not None and entry.unique_id.startswith(
@@ -141,30 +132,27 @@ class OpenMoticsFlowHandler(
                     name=f"{DOMAIN}-config_flow",
                 )
 
-                # self.token = await self.flow_impl.get_token({})
-                # _LOGGER.debug(self.token)
-
-                self.token = await self.flow_impl.async_resolve_external_data(
+                token = await self.flow_impl.async_resolve_external_data(
                     self.external_data
                 )
                 # Force int for non-compliant oauth2 providers
                 try:
-                    self.token["expires_in"] = int(self.token["expires_in"])
+                    token["expires_in"] = int(token["expires_in"])
                 except ValueError as err:
                     _LOGGER.warning("Error converting expires_in to int: %s", err)
                     return self.async_abort(reason="oauth_error")
-                self.token["expires_at"] = time.time() + self.token["expires_in"]
+                token["expires_at"] = time.time() + token["expires_in"]
 
                 self.logger.info("Successfully authenticated")
 
-                self.oauth2_session = OAuth2Session(
-                    self.hass,
-                    {"domain": DOMAIN, "data": {"token": self.token}},
-                    self.flow_impl,
-                )
+                # oauth2_session = OAuth2Session(
+                #     self.hass,
+                #     {"domain": DOMAIN, "data": {"token": token}},
+                #     self.flow_impl,
+                # )
 
                 omclient = OpenMoticsCloud(
-                    token=self.token["access_token"],
+                    token=token["access_token"],
                     session=async_get_clientsession(self.hass),
                 )
 
@@ -177,9 +165,6 @@ class OpenMoticsFlowHandler(
             ) as err:
                 _LOGGER.error(err)
                 raise CannotConnect from err
-
-            # self.data["auth_implementation"] = self.flow_impl.domain
-            # self.data["token"] = self.token
 
             if len(self.installations) > 0:
                 # show selection form
@@ -219,7 +204,7 @@ class OpenMoticsFlowHandler(
         _LOGGER.debug(self.data[CONF_INSTALLATION_ID])
         return await self.async_step_create_cloudentry()
 
-    async def async_step_create_cloudentry(self, data=None) -> FlowResult:
+    async def async_step_create_cloudentry(self) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
         unique_id = self.construct_unique_id(
             "openmotics-cloud", self.data[CONF_INSTALLATION_ID]
@@ -232,23 +217,6 @@ class OpenMoticsFlowHandler(
         self.data["token"] = self.token
 
         return self.async_create_entry(title=unique_id, data=self.data)
-
-    # async def async_step_zeroconf(
-    #     self, discovery_info: zeroconf.ZeroconfServiceInfo
-    # ) -> FlowResult:
-    #     """Handle zeroconf discovery."""
-
-    #     if not discovery_info.hostname.startswith("OpenMotics"):
-    #         return self.async_abort(reason="invalid_mdns")
-
-    #     ip_address = discovery_info.host
-
-    #     await self.async_set_unique_id(ip_address)
-    #     self._abort_if_unique_id_configured()
-    #     self.discovered_ip_address = ip_address
-    #     return await self.async_step_user()
-
-    #     return await self.async_verify_local_connection()
 
     async def async_step_local(self, user_input=None) -> FlowResult:
         """Handle local flow."""
@@ -291,7 +259,7 @@ class OpenMoticsFlowHandler(
             step_id="local", data_schema=LOCAL_SCHEMA, errors=errors
         )
 
-    async def async_step_create_localentry(self, data=None) -> FlowResult:
+    async def async_step_create_localentry(self) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
         unique_id = self.construct_unique_id(
             "openmotics-local", self.data[CONF_IP_ADDRESS]

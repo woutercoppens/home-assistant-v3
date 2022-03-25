@@ -33,7 +33,7 @@ async def async_setup_entry(
 
     if not entities:
         _LOGGER.info("No OpenMotics Group Actions (Scenes) added")
-        return False
+        return
 
     async_add_entities(entities)
 

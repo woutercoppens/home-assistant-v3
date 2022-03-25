@@ -54,7 +54,7 @@ async def async_setup_entry(
 
     if not entities:
         _LOGGER.info("No OpenMotics sensors added")
-        return False
+        return
 
     async_add_entities(entities)
 
@@ -69,12 +69,10 @@ class OpenMoticsSensor(OpenMoticsDevice, SensorEntity):
         coordinator: OpenMoticsDataUpdateCoordinator,
         index,
         device,
-        # description: SensorEntityDescription,
     ):
         """Initialize the light."""
         super().__init__(coordinator, index, device, "sensor")
 
-        # self.entity_description = description
         self._state = None
 
 

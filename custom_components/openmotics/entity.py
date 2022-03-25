@@ -23,30 +23,32 @@ class OpenMoticsDevice(CoordinatorEntity):
         device_type: str,
     ) -> None:
         """Initialize the device."""
-        super().__init__(coordinator)
+        super().__init__(coordinator=coordinator)
 
-        # self._attr_coordinator = coordinator
         self.omclient = coordinator.omclient
-        # self._install_id = coordinator.omclient.installation_id
         self._install_id = coordinator.install_id
         self._index = index
         self._device = device
 
-        self._name = device.name
         self._local_id = device.local_id
         self._idx = device.idx
         self._type = device_type
 
-        self._extra_state_attributes = {}
+        # inherited properties
+        self._attr_name = device.name
         self._attr_available = True
         # Because polling is so common, Home Assistant by default assumes
         # that your entity is based on polling.
         self._attr_should_poll = False
 
-    # @property
-    # def available(self) -> bool:
-    #     """Return if entity is available."""
-    #     return super().available and True
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, self.unique_id)},
+            name=self.name,
+            model=self._type,
+            id=self._idx,
+            installation=self._install_id,
+            manufacturer="OpenMotics",
+        )
 
     @property
     def device(self) -> Any:
@@ -54,12 +56,7 @@ class OpenMoticsDevice(CoordinatorEntity):
         return self._device
 
     @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._name
-
-    @property
-    def floor(self) -> str:
+    def floor(self) -> Any:
         """Return the floor of the device."""
         try:
             location = self._device["location"]
@@ -68,7 +65,7 @@ class OpenMoticsDevice(CoordinatorEntity):
             return "N/A"
 
     @property
-    def room(self) -> str:
+    def room(self) -> Any:
         """Return the room of the device."""
         try:
             location = self._device["location"]
@@ -77,22 +74,22 @@ class OpenMoticsDevice(CoordinatorEntity):
             return "N/A"
 
     @property
-    def index(self) -> int:
+    def index(self) -> Any:
         """Return the index."""
         return self._index
 
     @property
-    def unique_id(self) -> str:
+    def unique_id(self) -> Any:
         """Return a unique ID."""
         return f"{self.install_id}-{self.device_id}"
 
     @property
-    def device_id(self) -> str:
+    def device_id(self) -> Any:
         """Return a unique ID."""
         return self._idx
 
     @property
-    def type(self) -> str:
+    def type(self) -> Any:
         """Return a unique ID."""
         return self._type
 
@@ -100,15 +97,3 @@ class OpenMoticsDevice(CoordinatorEntity):
     def install_id(self):
         """Return the installation ID."""
         return self._install_id
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return information about the device."""
-        return DeviceInfo(
-            identifiers={(DOMAIN, self.unique_id)},
-            name=self._name,
-            model=self._type,
-            id=self._idx,
-            installation=self._install_id,
-            manufacturer="OpenMotics",
-        )

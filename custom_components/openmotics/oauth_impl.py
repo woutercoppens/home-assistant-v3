@@ -16,7 +16,7 @@ class OpenMoticsOauth2Implementation(LocalOAuth2Implementation):
     client id and secret and return a proper name.
     """
 
-    def __init__(
+    def __init__( #pylint: disable=too-many-arguments
         self,
         hass: HomeAssistant,
         domain: str,
@@ -43,11 +43,11 @@ class OpenMoticsOauth2Implementation(LocalOAuth2Implementation):
         return self._name
 
     @property
-    def extra_authorize_data(self) -> dict:
+    def extra_authorize_data(self) -> dict[str, str]:
         """Extra data that needs to be appended to the authorize url."""
         return {"scope": " ".join(CLOUD_SCOPE)}
 
-    async def async_resolve_external_data(self, external_data: Any) -> dict:
+    async def async_resolve_external_data(self, external_data: Any) -> Any:
         """Resolve the authorization code to tokens."""
         # Overruling config_entry_oauth2_flow.
         return await self._token_request(

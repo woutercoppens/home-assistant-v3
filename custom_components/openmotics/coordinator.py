@@ -2,19 +2,14 @@
 from __future__ import annotations
 
 import logging
-import ssl
-from typing import Any
+from typing import Any, Union
 
-# from async_timeout import timeout
-# from homeassistant.components import cloud, webhook
-# from homeassistant.components.webhook import async_register as webhook_register
-# from homeassistant.components.webhook import async_unregister as webhook_unregister
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (  # CONF_VERIFY_SSL,; CONF_WEBHOOK_ID,; EVENT_HOMEASSISTANT_STOP,
+from homeassistant.const import (
     CONF_IP_ADDRESS,
     CONF_NAME,
     CONF_PASSWORD,
     CONF_PORT,
+    CONF_VERIFY_SSL,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -23,9 +18,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhaopenmotics import (
     LocalGateway,
     OpenMoticsCloud,
-    OpenMoticsConnectionError,
-    OpenMoticsConnectionTimeoutError,
     OpenMoticsError,
+    get_ssl_context,
 )
 
 from .const import CONF_INSTALLATION_ID, DEFAULT_SCAN_INTERVAL, DOMAIN
@@ -36,24 +30,19 @@ _LOGGER = logging.getLogger(__name__)
 class OpenMoticsDataUpdateCoordinator(DataUpdateCoordinator):
     """Query OpenMotics devices and keep track of seen conditions."""
 
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        entry: ConfigEntry,
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, *, name: str) -> None:
         """Initialize the OpenMotics gateway."""
         super().__init__(
-            hass,
-            _LOGGER,
-            name=DOMAIN,
+            hass=hass,
+            logger=_LOGGER,
+            name=name or DOMAIN,
             update_interval=DEFAULT_SCAN_INTERVAL,
         )
         self.session = None
-        self.entry = entry
-        self._omclient = None
+        self._omclient: Union[OpenMoticsCloud, LocalGateway]
         self._install_id = None
 
-    async def _async_update_data(self) -> dict:
+    async def _async_update_data(self) -> dict[Any, Any]:
         """Fetch data from API endpoint.
 
         This is the place to pre-process the data to lookup tables
@@ -92,7 +81,7 @@ class OpenMoticsDataUpdateCoordinator(DataUpdateCoordinator):
         return self._omclient
 
     @property
-    def install_id(self) -> int:
+    def install_id(self) -> Any:
         """Return the backendclient."""
         return self._install_id
 
@@ -100,18 +89,16 @@ class OpenMoticsDataUpdateCoordinator(DataUpdateCoordinator):
 class OpenMoticsCloudDataUpdateCoordinator(OpenMoticsDataUpdateCoordinator):
     """Query OpenMotics devices and keep track of seen conditions."""
 
-    def __init__(
-        self, hass: HomeAssistant, entry: ConfigEntry, session: OAuth2Session
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, session: OAuth2Session, name: str) -> None:
         """Initialize the OpenMotics gateway."""
         super().__init__(
-            hass,
-            entry,
+            hass=hass,
+            name=name,
         )
         self.session = session
-        self._install_id = entry.data.get(CONF_INSTALLATION_ID)
+        self._install_id = self.config_entry.data.get(CONF_INSTALLATION_ID)
 
-        async def async_token_refresh() -> str:
+        async def async_token_refresh() -> Any:
             await session.async_ensure_token_valid()
             return session.token["access_token"]
 
@@ -125,19 +112,20 @@ class OpenMoticsCloudDataUpdateCoordinator(OpenMoticsDataUpdateCoordinator):
 class OpenMoticsLocalDataUpdateCoordinator(OpenMoticsDataUpdateCoordinator):
     """Query OpenMotics devices and keep track of seen conditions."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, name: str) -> None:
         """Initialize the OpenMotics gateway."""
         super().__init__(
-            hass,
-            entry,
+            hass=hass,
+            name=name,
         )
-        self._install_id = entry.data.get(CONF_IP_ADDRESS)
+        self._install_id = self.config_entry.data.get(CONF_IP_ADDRESS)
+        ssl_context = get_ssl_context(self.config_entry.data.get(CONF_VERIFY_SSL))
 
         """Set up a OpenMotics controller"""
         self._omclient = LocalGateway(
-            localgw=entry.data.get(CONF_IP_ADDRESS),
-            username=entry.data.get(CONF_NAME),
-            password=entry.data.get(CONF_PASSWORD),
-            port=entry.data.get(CONF_PORT),
+            localgw=self.config_entry.data.get(CONF_IP_ADDRESS),
+            username=self.config_entry.data.get(CONF_NAME),
+            password=self.config_entry.data.get(CONF_PASSWORD),
+            port=self.config_entry.data.get(CONF_PORT),
             ssl_context=ssl_context,
         )

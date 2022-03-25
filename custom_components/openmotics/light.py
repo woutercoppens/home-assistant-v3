@@ -49,17 +49,17 @@ async def async_setup_entry(
 
     if not entities:
         _LOGGER.info("No OpenMotics Lights added")
-        return False
+        return
 
     async_add_entities(entities, True)
 
 
-def brightness_to_percentage(byt):
+def brightness_to_percentage(byt) -> float:
     """Convert brightness from absolute 0..255 to percentage."""
     return round((byt * 100.0) / 255.0)
 
 
-def brightness_from_percentage(percent):
+def brightness_from_percentage(percent) -> int:
     """Convert percentage to absolute value 0..255."""
     return round((percent * 255.0) / 100.0)
 
@@ -69,7 +69,9 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
 
     coordinator: OpenMoticsDataUpdateCoordinator
 
-    def __init__(self, coordinator: OpenMoticsDataUpdateCoordinator, index, device):
+    def __init__(
+        self, coordinator: OpenMoticsDataUpdateCoordinator, index, device
+    ) -> None:
         """Initialize the light."""
         super().__init__(coordinator, index, device, "light")
 
@@ -80,7 +82,7 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
             self._attr_color_mode = COLOR_MODE_BRIGHTNESS
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> Any:
         """Return true if device is on."""
         try:
             self._device = self.coordinator.data["outputs"][self.index]
@@ -89,7 +91,7 @@ class OpenMoticsOutputLight(OpenMoticsDevice, LightEntity):
             return None
 
     @property
-    def brightness(self):
+    def brightness(self) -> Any:
         """Return the brightness of this light between 0..255."""
         try:
             self._device = self.coordinator.data["outputs"][self.index]
@@ -132,7 +134,9 @@ class OpenMoticsLight(OpenMoticsDevice, LightEntity):
 
     coordinator: OpenMoticsDataUpdateCoordinator
 
-    def __init__(self, coordinator: OpenMoticsDataUpdateCoordinator, index, device):
+    def __init__(
+        self, coordinator: OpenMoticsDataUpdateCoordinator, index, device
+    ) -> None:
         """Initialize the light."""
         super().__init__(coordinator, index, device, "light")
 
@@ -151,7 +155,7 @@ class OpenMoticsLight(OpenMoticsDevice, LightEntity):
             self._attr_supported_color_modes.add(COLOR_MODE_RGBW)
 
     @property
-    def is_on(self):
+    def is_on(self) -> Any:
         """Return true if device is on."""
         try:
             self._device = self.coordinator.data["lights"][self.index]
@@ -160,7 +164,7 @@ class OpenMoticsLight(OpenMoticsDevice, LightEntity):
             return None
 
     @property
-    def brightness(self):
+    def brightness(self) -> Any:
         """Return the brightness of this light between 0..255."""
         try:
             self._device = self.coordinator.data["lights"][self.index]

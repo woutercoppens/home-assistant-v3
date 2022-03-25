@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
@@ -39,7 +40,7 @@ async def async_setup_entry(
 
     if not entities:
         _LOGGER.info("No OpenMotics Outlets added")
-        return False
+        return
 
     async_add_entities(entities, True)
 
@@ -47,12 +48,14 @@ async def async_setup_entry(
 class OpenMoticsSwitch(OpenMoticsDevice, SwitchEntity):
     """Representation of a OpenMotics switch."""
 
-    def __init__(self, coordinator: OpenMoticsDataUpdateCoordinator, index, om_switch):
+    def __init__(
+        self, coordinator: OpenMoticsDataUpdateCoordinator, index, om_switch
+    ) -> None:
         """Initialize the switch."""
         super().__init__(coordinator, index, om_switch, "switch")
 
     @property
-    def is_on(self):
+    def is_on(self) -> Any:
         """Return true if device is on."""
         try:
             self._device = self.coordinator.data["outputs"][self.index]
@@ -60,7 +63,7 @@ class OpenMoticsSwitch(OpenMoticsDevice, SwitchEntity):
         except (AttributeError, KeyError):
             return None
 
-    async def async_turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs) -> None:
         """Turn devicee off."""
         await self.coordinator.omclient.outputs.turn_on(
             self.device_id,
@@ -68,14 +71,14 @@ class OpenMoticsSwitch(OpenMoticsDevice, SwitchEntity):
         )
         await self.coordinator.async_refresh()
 
-    async def async_turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs) -> None:
         """Turn devicee off."""
         await self.coordinator.omclient.outputs.turn_off(
             self.device_id,
         )
         await self.coordinator.async_refresh()
 
-    async def async_toggle(self, **kwargs):
+    async def async_toggle(self, **kwargs) -> None:
         """Turn devicee off."""
         await self.coordinator.omclient.outputs.toggle(
             self.device_id,
@@ -83,14 +86,16 @@ class OpenMoticsSwitch(OpenMoticsDevice, SwitchEntity):
         await self.coordinator.async_refresh()
 
     @property
-    def icon(self):
-        """Return the icon to use for the valve."""
+    def icon(self) -> str | None:
+        """Return the icon to use."""
+        # Valve
         if self._device.output_type == "VALVE":
             if self.is_on:
                 return "mdi:valve-open"
             return "mdi:valve-closed"
-        """Return the icon to use for the fan / ventilation."""
+        # Fan / Ventilation.
         if self._device.output_type == "VENTILATION":
             if self.is_on:
                 return "mdi:fan"
             return "mdi:fan-off"
+        return None
