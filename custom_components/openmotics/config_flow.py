@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import ssl
 import time
 from typing import Any
 
@@ -22,8 +21,8 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
-from pyhaopenmotics import Installation, LocalGateway, OpenMoticsCloud, OpenMoticsError
+# from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
+from pyhaopenmotics import Installation, LocalGateway, OpenMoticsCloud, OpenMoticsError, OpenMoticsConnectionSslError, OpenMoticsConnectionError, AuthenticationException
 
 from .const import CONF_INSTALLATION_ID, DOMAIN, ENV_CLOUD, ENV_LOCAL
 from .exceptions import CannotConnect
@@ -62,7 +61,7 @@ class OpenMoticsFlowHandler(
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     installations: list[Installation] = []
-    data: dict[str, Any] = {}
+    config: dict[str, Any] = {}
 
     def __init__(self) -> None:
         #     """Create a new instance of the flow handler."""
@@ -116,19 +115,22 @@ class OpenMoticsFlowHandler(
         # Ask for cloud detail
         return await self.async_step_cloud()
 
+    # Cloud Environment -------------------------------------------------------
     async def async_step_cloud(self, user_input=None) -> FlowResult:
         errors = {}
 
         if user_input is not None:
-            self.data[CONF_CLIENT_ID] = user_input[CONF_CLIENT_ID]
-            self.data[CONF_CLIENT_SECRET] = user_input[CONF_CLIENT_SECRET]
+            self.config = {
+                CONF_CLIENT_ID: user_input[CONF_CLIENT_ID],
+                CONF_CLIENT_SECRET: user_input[CONF_CLIENT_SECRET],
+            }
 
             try:
                 self.flow_impl = OpenMoticsOauth2Implementation(
                     self.hass,
                     domain=f"{DOMAIN}-config_flow",
-                    client_id=self.data[CONF_CLIENT_ID],
-                    client_secret=self.data[CONF_CLIENT_SECRET],
+                    client_id=self.config[CONF_CLIENT_ID],
+                    client_secret=self.config[CONF_CLIENT_SECRET],
                     name=f"{DOMAIN}-config_flow",
                 )
 
@@ -200,60 +202,74 @@ class OpenMoticsFlowHandler(
                 ),
             )
 
-        self.data[CONF_INSTALLATION_ID] = user_input[CONF_INSTALLATION_ID]
-        _LOGGER.debug(self.data[CONF_INSTALLATION_ID])
+        self.config[CONF_INSTALLATION_ID] = user_input[CONF_INSTALLATION_ID]
+        _LOGGER.debug(self.config[CONF_INSTALLATION_ID])
         return await self.async_step_create_cloudentry()
 
     async def async_step_create_cloudentry(self) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
         unique_id = self.construct_unique_id(
-            "openmotics-cloud", self.data[CONF_INSTALLATION_ID]
+            "openmotics-cloud", self.config[CONF_INSTALLATION_ID]
         )
         await self.async_set_unique_id(unique_id)
 
-        self.data[
+        self.config[
             "auth_implementation"
-        ] = f"{DOMAIN}-cloud-{self.data[CONF_INSTALLATION_ID]}"
-        self.data["token"] = self.token
+        ] = f"{DOMAIN}-clouddev-{self.config[CONF_INSTALLATION_ID]}"
+        self.config["token"] = self.token
 
-        return self.async_create_entry(title=unique_id, data=self.data)
+        return self.async_create_entry(title=unique_id, data=self.config)
 
+    # Local Environment -------------------------------------------------------
     async def async_step_local(self, user_input=None) -> FlowResult:
         """Handle local flow."""
         errors = {}
 
         if user_input is not None:
-            self.data[CONF_IP_ADDRESS] = user_input[CONF_IP_ADDRESS]
-            self.data[CONF_NAME] = user_input[CONF_NAME]
-            self.data[CONF_PASSWORD] = user_input[CONF_PASSWORD]
-            self.data[CONF_PORT] = user_input[CONF_PORT]
-            self.data[CONF_VERIFY_SSL] = user_input[CONF_VERIFY_SSL]
-
+            self.config = {
+                CONF_IP_ADDRESS: user_input[CONF_IP_ADDRESS],
+                CONF_NAME: user_input[CONF_NAME],
+                CONF_PASSWORD: user_input[CONF_PASSWORD],
+                CONF_PORT: user_input[CONF_PORT],
+                CONF_VERIFY_SSL: user_input[CONF_VERIFY_SSL],
+            }
+            version = None 
             try:
                 omclient = LocalGateway(
-                    localgw=self.data[CONF_IP_ADDRESS],
-                    username=self.data[CONF_NAME],
-                    password=self.data[CONF_PASSWORD],
-                    port=self.data[CONF_PORT],
-                    tls=self.data[CONF_VERIFY_SSL],
+                    localgw=self.config[CONF_IP_ADDRESS],
+                    username=self.config[CONF_NAME],
+                    password=self.config[CONF_PASSWORD],
+                    port=self.config[CONF_PORT],
+                    tls=self.config[CONF_VERIFY_SSL],
                 )
                 await omclient.login()
 
                 version = await omclient.exec_action("get_version")
                 _LOGGER.debug(version)
 
-            except ssl.SSLError:
-                errors["base"] = "old_gateway"
+                await omclient.close()
+
+            except OpenMoticsConnectionError as err:
+                _LOGGER.error("Connection Error: [%s]", err)
+                errors["base"] = "cannot_connect"
+            except OpenMoticsConnectionSslError as err:
+                _LOGGER.error("SSL certificate error: [%s]", err)
+                errors["base"] = "ssl_error"
+            except AuthenticationException as err:
+                _LOGGER.error("SSL certificate error: [%s]", err)
+                errors["base"] = "ssl_error"
             except (
                 asyncio.TimeoutError,
                 OpenMoticsError,
             ) as err:
-                _LOGGER.error(err)
-                raise CannotConnect from err
-
-            if version is not None:
-                return await self.async_step_create_localentry()
-            errors["base"] = "discovery_error"
+                _LOGGER.error("Error: %s", err)
+                errors["base"] = "cannot_connect"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else: 
+                if version is not None:
+                    return await self.async_step_create_localentry()
 
         return self.async_show_form(
             step_id="local", data_schema=LOCAL_SCHEMA, errors=errors
@@ -262,13 +278,13 @@ class OpenMoticsFlowHandler(
     async def async_step_create_localentry(self) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
         unique_id = self.construct_unique_id(
-            "openmotics-local", self.data[CONF_IP_ADDRESS]
+            "openmotics-local", self.config[CONF_IP_ADDRESS]
         )
         await self.async_set_unique_id(unique_id)
 
-        return self.async_create_entry(title=unique_id, data=self.data)
+        return self.async_create_entry(title=unique_id, data=self.config)
 
     @staticmethod
-    def construct_unique_id(host: str, install_id: str) -> str:
+    def construct_unique_id(type: str, install_id: str) -> str:
         """Construct the unique id from the ssdp discovery or user_step."""
-        return f"{host}-{install_id}"
+        return f"{type}-{install_id}"

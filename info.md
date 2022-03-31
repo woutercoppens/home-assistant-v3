@@ -15,18 +15,17 @@ _Component to integrate with [integration_blueprint][integration_blueprint]._
 
 | Platform        | Description                         |
 | --------------- | ----------------------------------- |
-| `binary_sensor` | Show something `True` or `False`.   |
+| `light`         | Show info from API.   |
 | `sensor`        | Show info from API.                 |
 | `switch`        | Switch something `True` or `False`. |
 
-![example][exampleimg]
 
 {% if not installed %}
 
 ## Installation
 
 1. Click install.
-1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Blueprint".
+1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "openmotics".
 
 {% endif %}
 
@@ -43,7 +42,6 @@ _Component to integrate with [integration_blueprint][integration_blueprint]._
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[exampleimg]: example.png
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
 [license]: https://github.com/openmotics/home-assistant/blob/main/LICENSE

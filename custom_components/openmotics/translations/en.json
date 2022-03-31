@@ -34,12 +34,15 @@
       }
     },
     "error": {
-      "auth": "Something went wrong."
+      "cannot_connect": "Error connecting to Open Motics API.",
+      "auth": "Something went wrong.",
+      "ssl_error": "SSL certificate issue",
+      "invalid_auth": "Problem with credentials.",
+      "unknown": "Unknown error occured. Please enable debugging."
     },
     "abort": {
-      "cannot_connect": "Error connecting to Open Motics.",
       "invalid_auth": "Invalid client_id and client_secret",
-      "old_gateway": "You have an old gateway with an oid SSL version. Please use the cloud. ",
+      "ssl_error": "You have an old gateway with an oid SSL version. Please use the cloud. ",
       "missing_configuration": "The OpenMotics integration is not configured. Please follow the documentation."
     },
     "create_entry": {

@@ -22,7 +22,7 @@
           "username": "[%key:common::config_flow::data::username%]",
           "password": "[%key:common::config_flow::data::password%]",
           "post": "[%key:common::config_flow::data::port%]",
-          "verify_ssl": ""
+          "verify_ssl": "[%key:common::config_flow::data::verify_ssl%]"
         }
       },
       "installation": {
@@ -36,7 +36,7 @@
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
-      "old_gateway": "[%key:common::config_flow::error::old_gateway%]",
+      "ssl_error": "SSL certificate issue",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "abort": {

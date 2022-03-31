@@ -1,1 +1,2 @@
 """Tests for homeassistant integration."""
+

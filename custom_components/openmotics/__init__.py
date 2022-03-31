@@ -18,7 +18,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
 
-from .const import CONF_INSTALLATION_ID, DOMAIN, PLATFORMS
+from .const import CONF_INSTALLATION_ID, DOMAIN, PLATFORMS, STARTUP_MESSAGE
 from .coordinator import (
     OpenMoticsCloudDataUpdateCoordinator,
     OpenMoticsLocalDataUpdateCoordinator,
@@ -50,9 +50,10 @@ async def async_setup_openmotics_installation(
 async def async_setup_entry(
     hass: core.HomeAssistant, entry: config_entries.ConfigEntry
 ):
-    """Set up OpenMotics Gateway from a config entry."""
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
+    """Set up this integration using UI."""
+    if hass.data.get(DOMAIN) is None:
+        hass.data.setdefault(DOMAIN, {})
+        _LOGGER.info(STARTUP_MESSAGE)
 
     if CONF_IP_ADDRESS in entry.data:
         # Local gateway

@@ -4,7 +4,9 @@
   "config_flow": true,
   "documentation": "https://github.com/openmotics/home-assistant",
   "issue_tracker": "https://github.com/openmotics/home-assistant/issues",
-  "requirements": [],
+  "requirements": [
+    "git+https://github.com/woutercoppens/pyhaopenmotics-v2.git@main#pyhaopenmotics==0.0.1"
+  ],
   "ssdp": [],
   "zeroconf": [
     {

@@ -16,7 +16,7 @@ class OpenMoticsOauth2Implementation(LocalOAuth2Implementation):
     client id and secret and return a proper name.
     """
 
-    def __init__( #pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         hass: HomeAssistant,
         domain: str,
