@@ -62,6 +62,8 @@ class OpenMoticsFlowHandler(
 
     installations: list[Installation] = []
     data: dict[str, Any] = {}
+    token: dict[str, Any] = {}
+
 
     def __init__(self) -> None:
         #     """Create a new instance of the flow handler."""
@@ -160,6 +162,8 @@ class OpenMoticsFlowHandler(
 
                 self.installations = await omclient.installations.get_all()
 
+                self.data["token"] = token
+
             #     # TODO: add proper error handling
             except (
                 asyncio.TimeoutError,
@@ -209,14 +213,14 @@ class OpenMoticsFlowHandler(
     async def async_step_create_cloudentry(self) -> FlowResult:
         """Create a config entry at completion of a flow and authorization of the app."""
         unique_id = self.construct_unique_id(
-            "openmotics-cloud", self.data[CONF_INSTALLATION_ID]
+            "openmotics-clouddev", self.data[CONF_INSTALLATION_ID]
         )
         await self.async_set_unique_id(unique_id)
 
         self.data[
             "auth_implementation"
         ] = f"{DOMAIN}-clouddev-{self.data[CONF_INSTALLATION_ID]}"
-        self.data["token"] = self.token
+
 
         return self.async_create_entry(title=unique_id, data=self.data)
 
