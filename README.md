@@ -73,7 +73,7 @@ Option 2: HACS installation
 
 ![custom repository](/pictures/hacs_custom_repositories.png)
 
-4. Enter `https://github.com/woutercoppens/home-assistant-v3.git` in the address bar at the bottom left of the window. Select Integration from the Category list and click ADD.
+4. Enter `https://github.com/woutercoppens/home-assistant-v3` in the address bar at the bottom left of the window. Select Integration from the Category list and click ADD.
 
 ![github](/pictures/hacs_add_repository.png)
 
