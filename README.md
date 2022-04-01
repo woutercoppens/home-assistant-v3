@@ -93,4 +93,6 @@ Make sure you restart Home Assistant after the installation (in HACS). After the
 
 Fill in the user_id and secret_id you have created in the first step.
 
+![Integration setup_cloud](/pictures/integration_setup_cloud.png)
+
 Depending on your installation, the modules should be added to your Home Assistant automatically within a few seconds till 10 minutes.
