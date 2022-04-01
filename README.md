@@ -76,9 +76,10 @@ Option 2: HACS installation
 4. Enter `https://github.com/woutercoppens/home-assistant-v3.git` in the address bar at the bottom left of the window. Select Integration from the Category list and click ADD.
 
 ![github](/pictures/hacs_add_repository.png)
+
 ![new_repository](/pictures/hacs_new_repository.png)
 
-5. In the dialog box that appears, click INSTALL.
+5. Click the new repositry. In the dialog box that appears, click DOWNLOAD THIS REPOSITORY WITH HACS.
 
 ![install](/pictures/hacs_download_repository.png)
 
