@@ -21,8 +21,17 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 # from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
-from pyhaopenmotics import Installation, LocalGateway, OpenMoticsCloud, OpenMoticsError, OpenMoticsConnectionSslError, OpenMoticsConnectionError, AuthenticationException
+from pyhaopenmotics import (
+    AuthenticationException,
+    Installation,
+    LocalGateway,
+    OpenMoticsCloud,
+    OpenMoticsConnectionError,
+    OpenMoticsConnectionSslError,
+    OpenMoticsError,
+)
 
 from .const import CONF_INSTALLATION_ID, DOMAIN, ENV_CLOUD, ENV_LOCAL
 from .exceptions import CannotConnect
@@ -63,7 +72,6 @@ class OpenMoticsFlowHandler(
     installations: list[Installation] = []
     data: dict[str, Any] = {}
     token: dict[str, Any] = {}
-
 
     def __init__(self) -> None:
         #     """Create a new instance of the flow handler."""
@@ -221,7 +229,6 @@ class OpenMoticsFlowHandler(
             "auth_implementation"
         ] = f"{DOMAIN}-clouddev-{self.data[CONF_INSTALLATION_ID]}"
 
-
         return self.async_create_entry(title=unique_id, data=self.data)
 
     # Local Environment -------------------------------------------------------
@@ -237,7 +244,7 @@ class OpenMoticsFlowHandler(
                 CONF_PORT: user_input[CONF_PORT],
                 CONF_VERIFY_SSL: user_input[CONF_VERIFY_SSL],
             }
-            version = None 
+            version = None
             try:
                 omclient = LocalGateway(
                     localgw=self.data[CONF_IP_ADDRESS],
@@ -271,7 +278,7 @@ class OpenMoticsFlowHandler(
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
-            else: 
+            else:
                 if version is not None:
                     return await self.async_step_create_localentry()
 

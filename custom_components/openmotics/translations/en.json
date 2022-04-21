@@ -38,7 +38,7 @@
       "auth": "Something went wrong.",
       "ssl_error": "SSL certificate issue",
       "invalid_auth": "Problem with credentials.",
-      "unknown": "Unknown error occured. Please enable debugging."
+      "unknown": "Unknown error occurred. Please enable debugging."
     },
     "abort": {
       "invalid_auth": "Invalid client_id and client_secret",
