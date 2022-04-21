@@ -253,7 +253,7 @@ class OpenMoticsFlowHandler(
                     port=self.data[CONF_PORT],
                     tls=self.data[CONF_VERIFY_SSL],
                 )
-                await omclient.login()
+                await omclient.get_token()
 
                 version = await omclient.exec_action("get_version")
                 _LOGGER.debug(version)

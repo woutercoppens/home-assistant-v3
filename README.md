@@ -61,7 +61,7 @@ Option 1: Copy Method
 1. Download the [openmotics-home-assistant repo](https://github.com/openmotics/home-assistant).
 2. Unzip it and copy the `custom_components/openmotics` folder to the Home Assistant configuration directory, for example `~/.homeassistant`.
 
-![configuration directory](/pictures/directory.png)
+![configuration directory](/pictures/copy_method.png)
 
 The disadvantage of a manual installation is that you won't be notified about updates.
 
@@ -71,15 +71,17 @@ Option 2: HACS installation
 2. See [Initial Configuration Guide](https://hacs.xyz/docs/configuration/basic) and complete initial configuration.
 3. Open Home Assistant. Click HACS > Integrations > ⋮ > Custom repositories.
 
-![custom repository](/pictures/custom_repository.png)
+![custom repository](/pictures/hacs_custom_repositories.png)
 
-4. Enter `https://github.com/woutercoppens/home-assistant-v2.git` in the address bar at the bottom left of the window. Select Integration from the Category list and click ADD.
+4. Enter `https://github.com/woutercoppens/home-assistant-v3` in the address bar at the bottom left of the window. Select Integration from the Category list and click ADD.
 
-![github](/pictures/github.png)
+![github](/pictures/hacs_add_repository.png)
 
-5. In the dialog box that appears, click INSTALL.
+![new_repository](/pictures/hacs_new_repository.png)
 
-![install](/pictures/install.png)
+5. Click the new repositry. In the dialog box that appears, click DOWNLOAD THIS REPOSITORY WITH HACS.
+
+![install](/pictures/hacs_download_repository.png)
 
 ### 4. Configure the integration.
 
@@ -90,5 +92,7 @@ Make sure you restart Home Assistant after the installation (in HACS). After the
 ![Integration setup](/pictures/integration_setup.png)
 
 Fill in the user_id and secret_id you have created in the first step.
+
+![Integration setup_cloud](/pictures/integration_setup_cloud.png)
 
 Depending on your installation, the modules should be added to your Home Assistant automatically within a few seconds till 10 minutes.
