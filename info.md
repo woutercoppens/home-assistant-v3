@@ -4,21 +4,10 @@
 
 [![hacs][hacsbadge]][hacs]
 [![Project Maintenance][maintenance-shield]][user_profile]
-[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
-
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
 
 _Component to integrate with [integration_blueprint][integration_blueprint]._
 
-**This component will set up the following platforms.**
-
-| Platform        | Description                         |
-| --------------- | ----------------------------------- |
-| `light`         | Show info from API.   |
-| `sensor`        | Show info from API.                 |
-| `switch`        | Switch something `True` or `False`. |
-
+This integration allows visibility and control of the OpenMotics system in Home Assistant. For information about how to configure and the features included in the integration, please see the [Readme.md](https://github.com/openmotics/home-assistant/blob/master/Readme.Md)
 
 {% if not installed %}
 

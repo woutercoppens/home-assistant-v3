@@ -1,6 +1,6 @@
 # OpenMotics Home Assistant integration Beta
 
-**BETA WARNING: this Beta release contains a significant amount of changes to support Outputs, Lights, Scenes and Shutters for the OpenMotics Gateway. It equally uses v0.0.1 of the pyHAopenmotics API, which also contains a significant amount fo changes.  It has been tested but may contain some bugs in existing or new functionality.  Use in your live environment at your own risk.**
+**BETA WARNING: this Beta release contains a significant amount of changes to support Outputs, Lights, Scenes and Shutters for the OpenMotics Gateway. It equally uses v0.0.1 of the pyHAopenmotics API, which also contains a significant amount of changes.  It has been tested but may contain some bugs in existing or new functionality.  Use in your live environment at your own risk.**
 
 This repository contains a Home Assistant component + platforms, for the awesome OpenMotics solution. 
 
@@ -70,7 +70,7 @@ See [Home Assistant Official Installation Guide](https://www.home-assistant.io/i
 
 We highly recommend using [HACS Home Assistant Community Store](https://github.com/hacs), for more information on how to install HACS please see their documentation website at https://hacs.xyz/
 
-Option 2: HACS installation
+Option 1: HACS installation
 
 1. See [HACS Official Installation Guide](https://hacs.xyz/docs/installation/installation/) and install HACS.
 2. See [Initial Configuration Guide](https://hacs.xyz/docs/configuration/basic) and complete initial configuration.
@@ -88,7 +88,7 @@ Option 2: HACS installation
 
 ![install](/pictures/hacs_download_repository.png)
 
-Option 1:  Manual Code Installation
+Option 2:  Manual Code Installation
 
 This method is best used when you want to play with the "latest and greatest" from the repository. Moving forward, the github repository will contain two primary branches, **master** and dev. Master is the latest released, and hopefully most stable branch, whereas **dev** is the branch that we're currently working on.
 
