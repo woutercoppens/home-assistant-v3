@@ -1,21 +1,35 @@
-[![GitHub Release][releases-shield]][releases]
-[![GitHub Activity][commits-shield]][commits]
-[![License][license-shield]][license]
+## 💽 Version
+{% if version_installed == version_available %} 
+👍 You already have the latest released version installed. 
+{% endif %}
 
-[![hacs][hacsbadge]][hacs]
-[![Project Maintenance][maintenance-shield]][user_profile]
+{% if installed and version_installed != selected_tag %}
+ 🤓 Changes from version {{ version_installed }}
+{% endif %}
+
+<h2 align="center">
+   <a href="https://www.openmotics.com/en/">OpenMotics</a> and<a href="https://www.home-assistant.io"> Home Assistant</a> integration  🏡 ☀
+   </br></br>
+   <img src="https://github.com/openmotics/home-assistant/blob/master/pictures/openmotics-logo" >
+   </br>
+   <a href="https://github.com/hacs/default"><img src="https://img.shields.io/badge/HACS-default-sucess"></a>
+    </br>
+</h2>
 
 _Component to integrate with [integration_blueprint][integration_blueprint]._
 
 This integration allows visibility and control of the OpenMotics system in Home Assistant. For information about how to configure and the features included in the integration, please see the [Readme.md](https://github.com/openmotics/home-assistant/blob/master/Readme.Md)
 
 {% if not installed %}
+## ⚙️ Installation & ♻️ Update
 
-## Installation
-
+Use hacs.io to manage the installation and update process. 🥳
 1. Click install.
-1. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "openmotics".
+2. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "openmotics".
 
+## ⌨️ Manual installation 
+
+Copy content of `custom_components` folder into your HA `/config/custom_components` folder
 {% endif %}
 
 ## Configuration is done in the UI
